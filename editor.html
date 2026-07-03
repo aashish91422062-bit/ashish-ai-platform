@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Editor</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>🎨 AI Photo & Video Editor</h1>
+
+<h2>📷 Upload Photo</h2>
+<input type="file" accept="image/*" onchange="previewImage(event)">
+
+<br><br>
+
+<img id="preview" width="300" style="display:none;border-radius:12px;">
+
+<br><br>
+
+<button onclick="alert('यह फीचर अगले चरण में जोड़ा जाएगा')">
+Start Editing
+</button>
+
+<script src="script.js"></script>
+
+</body>
+</html>
