@@ -1,68 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Photo & Video Studio</title>
-<link rel="stylesheet" href="style.css">
-</head>
+const canvas = new fabric.Canvas("canvas");
 
-<body>
+let imgObj = null;
 
-<header>
-<h1>🎨 AI Photo & Video Studio</h1>
-<p>Edit Photos & Videos Like a Pro</p>
-</header>
+// LOAD IMAGE
+function loadImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-<section class="card">
+    const reader = new FileReader();
 
-<h2>📷 Photo Editor</h2>
+    reader.onload = function(e) {
+        fabric.Image.fromURL(e.target.result, function(img) {
 
-<input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+            canvas.clear();
 
-<br><br>
+            imgObj = img;
 
-<img id="preview" src="" style="max-width:100%;display:none;border-radius:10px;">
+            img.set({
+                left: 100,
+                top: 50,
+                scaleX: 0.5,
+                scaleY: 0.5
+            });
 
-<br><br>
+            canvas.add(img);
+            canvas.setActiveObject(img);
+            canvas.renderAll();
+        });
+    };
 
-<div class="tools">
+    reader.readAsDataURL(file);
+}
 
-<button onclick="rotateLeft()">⤺ Rotate Left</button>
+// ROTATE LEFT
+function rotateLeft() {
+    const obj = canvas.getActiveObject();
+    if (!obj) return;
 
-<button onclick="rotateRight()">⤻ Rotate Right</button>
+    obj.rotate(obj.angle - 90);
+    canvas.renderAll();
+}
 
-<button onclick="zoomIn()">🔍 Zoom In</button>
+// ROTATE RIGHT
+function rotateRight() {
+    const obj = canvas.getActiveObject();
+    if (!obj) return;
 
-<button onclick="zoomOut()">🔎 Zoom Out</button>
+    obj.rotate(obj.angle + 90);
+    canvas.renderAll();
+}
 
-</div>
+// ZOOM IN
+function zoomIn() {
+    canvas.setZoom(canvas.getZoom() + 0.1);
+}
 
-<br>
+// ZOOM OUT
+function zoomOut() {
+    canvas.setZoom(Math.max(0.2, canvas.getZoom() - 0.1));
+}
 
-<label>Brightness</label>
-<input type="range" id="brightness" min="50" max="150" value="100" oninput="updateFilters()">
+// RESET
+function resetImage() {
+    canvas.clear();
+    canvas.setZoom(1);
+}
 
-<label>Contrast</label>
-<input type="range" id="contrast" min="50" max="150" value="100" oninput="updateFilters()">
+// FILTERS
+function updateFilters() {
+    const obj = canvas.getActiveObject();
+    if (!obj) return;
 
-<label>Saturation</label>
-<input type="range" id="saturation" min="0" max="200" value="100" oninput="updateFilters()">
+    const brightness = document.getElementById("brightness").value;
+    const contrast = document.getElementById("contrast").value;
+    const saturation = document.getElementById("saturation").value;
 
-<br><br>
+    obj.filters = [
+        new fabric.Image.filters.Brightness({
+            brightness: (brightness - 100) / 100
+        }),
+        new fabric.Image.filters.Contrast({
+            contrast: (contrast - 100) / 100
+        }),
+        new fabric.Image.filters.Saturation({
+            saturation: (saturation - 100) / 100
+        })
+    ];
 
-<button onclick="downloadImage()">⬇ Download Image</button>
+    obj.applyFilters();
+    canvas.renderAll();
+}
 
-<button onclick="resetImage()">🔄 Reset</button>
+// DOWNLOAD (100% FIXED)
+function downloadImage() {
+    canvas.discardActiveObject();
+    canvas.renderAll();
 
-</section>
+    const dataURL = canvas.toDataURL({
+        format: "png",
+        multiplier: 2
+    });
 
-<footer>
-<p>© 2026 AI Photo & Video Studio</p>
-<p><b>Editing by Ashish Kumar, Security Guard</b></p>
-</footer>
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.download = "AI-Photo-Studio.png";
 
-<script src="script.js"></script>
-
-</body>
-</html>
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
