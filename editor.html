@@ -1,66 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Photo Editor</title>
+let canvas = new fabric.Canvas("canvas");
+let currentImage = null;
 
-<link rel="stylesheet" href="style.css">
-</head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
-<script src="editor.js"></script>
-<body>
+// IMAGE LOAD
+function loadImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-<header>
-<h1>🎨 AI Photo Editor</h1>
-<p>Edit your photos like a professional</p>
-</header>
+    const reader = new FileReader();
 
-<div class="card">
+    reader.onload = function(e) {
+        fabric.Image.fromURL(e.target.result, function(img) {
 
-<input type="file" accept="image/*" onchange="loadImage(event)">
+            canvas.clear();
 
-<br><br>
+            currentImage = img;
 
-<canvas id="canvas" width="900" height="600" style="border:2px solid #00c6ff;border-radius:12px;background:white;"></canvas>
+            img.set({
+                left: 100,
+                top: 50,
+                scaleX: 0.5,
+                scaleY: 0.5
+            });
 
-<br><br>
+            canvas.add(img);
+            canvas.setActiveObject(img);
+            canvas.renderAll();
+        });
+    };
 
-<div class="tools">
+    reader.readAsDataURL(file);
+}
 
-<button onclick="rotateLeft()">⤺ Rotate</button>
+// ROTATE LEFT
+function rotateLeft() {
+    const obj = canvas.getActiveObject();
+    if (obj) {
+        obj.rotate(obj.angle - 10);
+        canvas.renderAll();
+    }
+}
 
-<button onclick="rotateRight()">⤻ Rotate Right</button>
+// ROTATE RIGHT
+function rotateRight() {
+    const obj = canvas.getActiveObject();
+    if (obj) {
+        obj.rotate(obj.angle + 10);
+        canvas.renderAll();
+    }
+}
 
-<button onclick="zoomIn()">➕ Zoom In</button>
+// ZOOM IN
+function zoomIn() {
+    const obj = canvas.getActiveObject();
+    if (obj) {
+        obj.scaleX *= 1.1;
+        obj.scaleY *= 1.1;
+        canvas.renderAll();
+    }
+}
 
-<button onclick="zoomOut()">➖ Zoom Out</button>
+// ZOOM OUT
+function zoomOut() {
+    const obj = canvas.getActiveObject();
+    if (obj) {
+        obj.scaleX *= 0.9;
+        obj.scaleY *= 0.9;
+        canvas.renderAll();
+    }
+}
 
-<button onclick="resetImage()">🔄 Reset</button>
+// RESET
+function resetImage() {
+    canvas.clear();
+}
 
-<button onclick="downloadImage()">⬇ Download</button>
+// DOWNLOAD IMAGE
+function downloadImage() {
+    const dataURL = canvas.toDataURL({
+        format: "png",
+        multiplier: 2
+    });
 
-</div>
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.download = "ai-photo-editor.png";
+    link.click();
+}
 
-<br>
+// FILTERS
+function updateFilters() {
+    const obj = canvas.getActiveObject();
+    if (!obj) return;
 
-<label>Brightness</label>
-<input type="range" id="brightness" min="50" max="150" value="100" oninput="updateFilters()">
+    const brightness = document.getElementById("brightness").value;
+    const contrast = document.getElementById("contrast").value;
+    const saturation = document.getElementById("saturation").value;
 
-<label>Contrast</label>
-<input type="range" id="contrast" min="50" max="150" value="100" oninput="updateFilters()">
+    obj.filters = [
+        new fabric.Image.filters.Brightness({
+            brightness: (brightness - 100) / 100
+        }),
+        new fabric.Image.filters.Contrast({
+            contrast: (contrast - 100) / 100
+        }),
+        new fabric.Image.filters.Saturation({
+            saturation: (saturation - 100) / 100
+        })
+    ];
 
-<label>Saturation</label>
-<input type="range" id="saturation" min="0" max="200" value="100" oninput="updateFilters()">
-
-</div>
-
-<footer>
-<p>© 2026 AI Photo Editor</p>
-<p><b>Editing by Ashish Kumar, Security Guard</b></p>
-</footer>
-
-<script src="editor.js"></script>
-
-</body>
-</html>
+    obj.applyFilters();
+    canvas.renderAll();
+}
