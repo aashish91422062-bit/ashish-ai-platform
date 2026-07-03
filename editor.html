@@ -18,11 +18,11 @@
 
 <div class="card">
 
-<input type="file" accept="image/*" onchange="previewImage(event)">
+<input type="file" accept="image/*" onchange="loadImage(event)">
 
 <br><br>
 
-<img id="preview" style="display:none;max-width:100%;border-radius:12px;">
+<canvas id="canvas" width="900" height="600" style="border:2px solid #00c6ff;border-radius:12px;background:white;"></canvas>
 
 <br><br>
 
@@ -60,7 +60,7 @@
 <p><b>Editing by Ashish Kumar, Security Guard</b></p>
 </footer>
 
-<script src="script.js"></script>
+<script src="editor.js"></script>
 
 </body>
 </html>
