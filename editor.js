@@ -1,71 +1,84 @@
-let rotation = 0;
-let scale = 1;
+const canvas = new fabric.Canvas("canvas");
 
-function previewImage(event) {
+let currentImage = null;
+
+function loadImage(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    const img = document.getElementById("preview");
-    img.src = URL.createObjectURL(file);
-    img.style.display = "block";
+    const reader = new FileReader();
 
-    rotation = 0;
-    scale = 1;
-    updateImage();
+    reader.onload = function(e) {
+
+        fabric.Image.fromURL(e.target.result, function(img) {
+
+            canvas.clear();
+
+            currentImage = img;
+
+            img.set({
+                left: 50,
+                top: 50,
+                scaleX: 0.5,
+                scaleY: 0.5
+            });
+
+            canvas.add(img);
+            canvas.setActiveObject(img);
+            canvas.renderAll();
+
+        });
+
+    };
+
+    reader.readAsDataURL(file);
 }
 
 function rotateLeft() {
-    rotation -= 90;
-    updateImage();
+    const obj = canvas.getActiveObject();
+    if (!obj) return;
+
+    obj.rotate(obj.angle - 90);
+    canvas.renderAll();
 }
 
 function rotateRight() {
-    rotation += 90;
-    updateImage();
+    const obj = canvas.getActiveObject();
+    if (!obj) return;
+
+    obj.rotate(obj.angle + 90);
+    canvas.renderAll();
 }
 
 function zoomIn() {
-    scale += 0.1;
-    updateImage();
+    canvas.setZoom(canvas.getZoom() + 0.1);
 }
 
 function zoomOut() {
-    if (scale > 0.2) {
-        scale -= 0.1;
-        updateImage();
-    }
-}
-
-function updateFilters() {
-    const img = document.getElementById("preview");
-
-    const brightness = document.getElementById("brightness").value;
-    const contrast = document.getElementById("contrast").value;
-    const saturation = document.getElementById("saturation").value;
-
-    img.style.transform = `rotate(${rotation}deg) scale(${scale})`;
-    img.style.filter = `
-        brightness(${brightness}%)
-        contrast(${contrast}%)
-        saturate(${saturation}%)
-    `;
-}
-
-function updateImage() {
-    updateFilters();
+    canvas.setZoom(Math.max(0.2, canvas.getZoom() - 0.1));
 }
 
 function resetImage() {
-    rotation = 0;
-    scale = 1;
+    canvas.setZoom(1);
 
-    document.getElementById("brightness").value = 100;
-    document.getElementById("contrast").value = 100;
-    document.getElementById("saturation").value = 100;
-
-    updateImage();
+    if (currentImage) {
+        currentImage.angle = 0;
+        currentImage.left = 50;
+        currentImage.top = 50;
+        canvas.renderAll();
+    }
 }
 
 function downloadImage() {
-    alert("Download feature अगले चरण में जोड़ेंगे।");
+
+    const link = document.createElement("a");
+
+    link.download = "Edited-Photo.png";
+
+    link.href = canvas.toDataURL({
+        format: "png",
+        quality: 1
+    });
+
+    link.click();
 }
