@@ -3,27 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Editor</title>
+<title>AI Photo Editor</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>🎨 AI Photo & Video Editor</h1>
+<header>
+<h1>🎨 AI Photo Editor</h1>
+<p>Edit your photos like a professional</p>
+</header>
 
-<h2>📷 Upload Photo</h2>
+<div class="card">
+
 <input type="file" accept="image/*" onchange="previewImage(event)">
 
 <br><br>
 
-<img id="preview" width="300" style="display:none;border-radius:12px;">
+<img id="preview" style="display:none;max-width:100%;border-radius:12px;">
 
 <br><br>
 
-<button onclick="alert('यह फीचर अगले चरण में जोड़ा जाएगा')">
-Start Editing
-</button>
+<div class="tools">
+
+<button onclick="rotateLeft()">⤺ Rotate</button>
+
+<button onclick="rotateRight()">⤻ Rotate Right</button>
+
+<button onclick="zoomIn()">➕ Zoom In</button>
+
+<button onclick="zoomOut()">➖ Zoom Out</button>
+
+<button onclick="resetImage()">🔄 Reset</button>
+
+<button onclick="downloadImage()">⬇ Download</button>
+
+</div>
+
+<br>
+
+<label>Brightness</label>
+<input type="range" id="brightness" min="50" max="150" value="100" oninput="updateFilters()">
+
+<label>Contrast</label>
+<input type="range" id="contrast" min="50" max="150" value="100" oninput="updateFilters()">
+
+<label>Saturation</label>
+<input type="range" id="saturation" min="0" max="200" value="100" oninput="updateFilters()">
+
+</div>
+
+<footer>
+<p>© 2026 AI Photo Editor</p>
+<p><b>Editing by Ashish Kumar, Security Guard</b></p>
+</footer>
 
 <script src="script.js"></script>
 
